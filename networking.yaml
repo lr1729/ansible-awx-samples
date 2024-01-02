@@ -1,0 +1,28 @@
+- name: Networking checks
+  hosts: all
+  tasks:
+    - name: Ping Google DNS server 8.8.8.8
+      command: ping -c 1 8.8.8.8
+      register: result
+      ignore_errors: yes
+
+    - name: Check if ping to 8.8.8.8 was successful
+      debug:
+        msg: "Ping to 8.8.8.8 was successful"
+      when: result.rc == 0
+
+    - name: Gather package facts
+      package_facts:
+        manager: auto
+
+    - name: Check if Apache is installed
+      debug:
+        msg: "Apache is installed"
+      when: "'httpd' in ansible_facts.packages or 'apache2' in ansible_facts.packages"
+
+    - name: Check if Nginx is installed
+      debug:
+        msg: "Nginx is installed"
+      when: "'nginx' in ansible_facts.packages"
+...
+

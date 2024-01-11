@@ -1,7 +1,34 @@
+---
 - hosts: all
   become: yes
   tasks:
-    - name: Update all packages
-      package:
+    - name: Check if apt is installed
+      command: which apt
+      register: apt_installed
+      ignore_errors: true
+
+    - name: Check if pacman is installed
+      command: which pacman
+      register: pacman_installed
+      ignore_errors: true
+
+    - name: Check if dnf is installed
+      command: which dnf
+      register: dnf_installed
+      ignore_errors: true
+
+    - name: Update apt packages
+      apt:
+        upgrade: 'yes'
+        update_cache: yes
+      when: apt_installed.rc == 0
+
+    - name: Update pacman packages
+      command: pacman -Syu --noconfirm
+      when: pacman_installed.rc == 0
+
+    - name: Update dnf packages
+      dnf:
         name: '*'
         state: latest
+      when: dnf_installed.rc == 0
